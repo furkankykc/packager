@@ -37,6 +37,9 @@ private:
     void saveSettings();
     void retrieveSettings();
     QString getExportName(bool current);
+    void StartDeploy();
+signals:
+    void package_finished();
 
 private:
     QStringList levels;

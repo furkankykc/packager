@@ -6,6 +6,7 @@
 #include "qsettings.h"
 #include "ui_mainwindow.h"
 #include <QComboBox>
+#include <QDesktopServices>
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QVBoxLayout>
@@ -69,6 +70,7 @@ void MainWindow::Package() {
             } else {
                 ui->package_button->setEnabled(true);
                 ui->cancel_button->setEnabled(false);
+                emit package_finished();
             }
         });
     QObject::connect(process, &QProcess::readyReadStandardOutput,
@@ -104,9 +106,6 @@ void MainWindow::Package() {
             }
         });
 
-    QString exportFolder = getLastCreatedFolder(getExportName(true));
-    QDir dir = QDir(exportFolder);
-    QString oldName = dir.dirName();
     QString mapName =
         levels.at(option.map).split("/").last().replace(".umap", "");
     QString program =
@@ -204,6 +203,11 @@ MainWindow::MainWindow(QWidget *parent)
                                  "The selected file is not a valid Deployer.");
         };
     });
+    connect(ui->actionOpen_Output_Directory, &QAction::triggered, [&] {
+        if (!outputFolder.isEmpty()) {
+            QDesktopServices::openUrl(outputFolder);
+        }
+    });
     connect(ui->actionSet_Output_Folder, &QAction::triggered, [&] {
         QString dir = QFileDialog::getExistingDirectory(
             0, ("Select Unreal Engine Directory"), QDir::currentPath());
@@ -215,6 +219,7 @@ MainWindow::MainWindow(QWidget *parent)
                 "The selected folder is not a valid Output folder.");
         };
     });
+    connect(this, &MainWindow::package_finished, &MainWindow::StartDeploy);
     connect(ui->actionAuto_Zip_Exports, &QAction::toggled,
             [&](bool checked) { bAutoZip = checked; });
     connect(ui->actionDelete_exports_after_zip, &QAction::toggled,
@@ -242,6 +247,56 @@ MainWindow::MainWindow(QWidget *parent)
 }
 
 MainWindow::~MainWindow() { delete ui; }
+
+void MainWindow::StartDeploy() {
+    if (bAutoDeploy && !deployerPath.isEmpty()) {
+        int consoleResult = 0;
+        QString clientPath;
+        clientPath =
+            QDir(QDir(exportPath).entryList(QStringList() << "Client").first())
+                .absolutePath();
+        process = new QProcess;
+        QObject::connect(process, &QProcess::readyReadStandardOutput,
+                         QApplication::instance(), [&]() {
+                             QByteArray output =
+                                 process->readAllStandardOutput();
+                             ui->textBrowser->append(QString::fromUtf8(output));
+                             QTextStream(stdout) << output;
+                         });
+        QObject::connect(process, &QProcess::readyReadStandardError,
+                         QApplication::instance(), [&]() {
+                             QTextStream(stdout)
+                                 << "ERROR:" << process->readAllStandardError();
+                             consoleResult = QMessageBox::critical(
+                                 nullptr, "Deployer",
+                                 process->readAllStandardError());
+                         });
+        QObject::connect(
+            QApplication::instance(), &QCoreApplication::aboutToQuit, [&]() {
+                if (process && process->state() == QProcess::Running) {
+#ifdef Q_OS_WIN
+                    // Terminate process and its children on Windows
+                    QString command =
+                        QString("taskkill /F /T /PID %1")
+                            .arg(QString::number(process->processId()));
+                    QProcess::startDetached(command);
+#else
+                    // Terminate process and its children on Unix-like systems (including macOS)
+                    qint64 pid = process->pid();
+                    if (pid != -1) {
+                        QString command = QString("pkill -TERM -P %1").arg(pid);
+                        QProcess::startDetached(command);
+                    }
+#endif
+                }
+            });
+
+        process->setNativeArguments(
+            QString("%1 %2").arg(escapeSpaces(deployerPath), clientPath));
+
+        process->start("cmd.exe", QStringList{"/C"}, QIODevice::ReadOnly);
+    }
+};
 
 void MainWindow::deleteChildLayouts(QLayout *layout) {
     QList<QLayout *> childLayouts = getChildLayouts(layout);

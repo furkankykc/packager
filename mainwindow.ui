@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>600</width>
-    <height>800</height>
+    <width>780</width>
+    <height>350</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -102,8 +102,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>556</width>
-               <height>567</height>
+               <width>736</width>
+               <height>146</height>
               </rect>
              </property>
              <layout class="QGridLayout" name="gridLayout_2">
@@ -197,7 +197,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>600</width>
+     <width>780</width>
      <height>21</height>
     </rect>
    </property>
@@ -216,6 +216,7 @@
     <addaction name="actionAuto_Zip_Exports"/>
     <addaction name="actionDelete_exports_after_zip"/>
     <addaction name="actionDeploy_Client"/>
+    <addaction name="actionOpen_Output_Directory"/>
    </widget>
    <addaction name="mainTab"/>
    <addaction name="consoleTab"/>
@@ -270,6 +271,11 @@
   <action name="actionSet_Output_Folder">
    <property name="text">
     <string>Set Output Folder</string>
+   </property>
+  </action>
+  <action name="actionOpen_Output_Directory">
+   <property name="text">
+    <string>Open Output Directory</string>
    </property>
   </action>
  </widget>

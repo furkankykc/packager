@@ -7,7 +7,7 @@
 #define AUTOMATION_TOOL                                                        \
     "/Engine/Binaries/DotNET/AutomationTool/AutomationTool.exe"
 #define COMMAND                                                                \
-    R"""(BuildCookRun -project="%1" -noP4 -clientconfig=%2 -serverconfig=%2 -nocompile -nocompileeditor -installed -unrealexe="%3\Engine\Binaries\Win64\UnrealEditor-Cmd.exe" -utf8output %4 -build -cook -map= -CookCultures=en -unversionedcookedcontent -ddc=InstalledDerivedDataBackendGraph -compressed -stage -deploy -unattended -stage -pak -prereqs -package -archive -archivedirectory="%5" -createreleaseversion=%6 -cmdline=" -Messaging" -device=Windows@FURKANKYKC -addcmdline="-SessionId=7994C3574DAB27B47459818B7F719B75 -SessionOwner='furkankykc' -SessionName='FURKANKYKC'  " -run)"""
+    R"""(BuildCookRun -project="%1" -noP4 -clientconfig=%2 -serverconfig=%2 -nocompile -nocompileeditor -installed -unrealexe="%3\Engine\Binaries\Win64\UnrealEditor-Cmd.exe" -utf8output %4 -build -cook -unversionedcookedcontent -ddc=InstalledDerivedDataBackendGraph -compressed -deploy -unattended -stage -pak -prereqs -package -archive -archivedirectory="%5" -createreleaseversion=%6 )"""
 #define _                                                                      \
     R"""(
 client ->Nogenre+ -client flag after platform
