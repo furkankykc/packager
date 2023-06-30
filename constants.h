@@ -23,13 +23,18 @@ default-> -platform=Win64
 #define FLAGS_CLIENT "-platform=Win64 -client"
 #define FLAGS_SERVER "-server -serverplatform=Win64 -server -noclient -noclient"
 
-QString convertConfigFormat(QString gameDir, QString map) {
+struct Options {
+    int map = 0;
+    int config = 0;
+    int target = 0;
+};
+static QString convertConfigFormat(QString gameDir, QString map) {
     QString levelName = map.split("/").last().replace(".umap", "");
     QString convertedMapPath =
         map.replace(gameDir + "/Content", "/Game").replace("umap", levelName);
     return convertedMapPath;
 }
-QString escapeSpaces(const QString &path) {
+static QString escapeSpaces(const QString &path) {
     QStringList splited = path.split("/");
     QStringList new_str_list;
     foreach (QString slice, splited) {
@@ -42,7 +47,7 @@ QString escapeSpaces(const QString &path) {
     qDebug() << "ESCAPED:" << new_str_list.join("/") << "::" << new_str_list;
     return new_str_list.join("/");
 }
-void writeAfterALine(QString path, QString keyBefore, QString key,
+static void writeAfterALine(QString path, QString keyBefore, QString key,
                      QString value) {
     QFile file(path);
     if (file.open(QIODevice::ReadWrite | QIODevice::Text)) {
@@ -70,7 +75,7 @@ void writeAfterALine(QString path, QString keyBefore, QString key,
         file.close();
     }
 }
-void writeIni(QString path, QString key, QString value) {
+static void writeIni(QString path, QString key, QString value) {
 
     QFile file(path);
     if (file.open(QIODevice::ReadWrite | QIODevice::Text)) {
